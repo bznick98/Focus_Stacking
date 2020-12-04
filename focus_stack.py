@@ -183,7 +183,7 @@ def focus_stacking(images):
         canvas = cv2.bitwise_not(aligned_images[i], canvas, mask=masks[i])
 
     # process the output
-    canvas = (255-canvas)[:,:,[2,1,0]]
+    canvas = (255-canvas)
     return canvas
 
 
@@ -212,7 +212,7 @@ if __name__ == "__main__":
 
     # focus stacking
     canvas = focus_stacking(images)
-    plt.imshow(canvas)
+    plt.imshow(canvas[:,:,[2,1,0]])
     plt.show()
 
     # write to file
