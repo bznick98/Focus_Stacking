@@ -10,7 +10,7 @@ python3 focus_stack.py path_to_directory [optional: arguments and flags]
 ```
 e.g.
 ```bash
-python3 focus_stack.py test6
+python3 focus_stack.py test_img/test6
 ```
 or with arguments,
 ```bash
