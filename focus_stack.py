@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 
 import os, sys, glob, argparse
 
+from helper import align_images, get_laplacian_pyramid, entropy, deviation, region_energy, pyplot_display
+
 intro = \
 """
 Focus Stacking
@@ -16,117 +18,6 @@ simple = \
 """
 stack photos with different depth of fields
 """
-
-
-def align_images(images):
-    """
-    Align input images using key-points extraction and homography matrix
-    @input: array of images
-    @output: array of aligned images
-    """
-    # use the first image as the reference image
-    ref_img = images[0]
-    ref_gray = cv2.cvtColor(ref_img, cv2.COLOR_BGR2GRAY)
-
-    # output array
-    aligned_images = [ref_img,]
-
-    # find homography between other images and ref img
-    for img in images[1:]:
-        # convert it to grayscale for feature extraction
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-        # use SIFT or ORB feature detection, or KAZE, seems more stable than ORB
-        max_features = 1000
-        # sift = cv2.xfeatures2d.SIFT_create()
-        detector = cv2.KAZE_create(max_features)
-
-        # find keypoints and descriptors
-        kp_a, des_a = detector.detectAndCompute(img_gray, None)
-        kp_b, des_b = detector.detectAndCompute(ref_gray, None)
-
-        # Matcher
-        bf = cv2.BFMatcher()
-        matches = bf.knnMatch(des_a, des_b, k=2)
-
-        # Apply ratio test
-        good = []
-        for m,n in matches:
-            if m.distance < 0.75*n.distance:
-                good.append(m)
-        numMatches = int(len(good)) 
-
-        matches = good
-
-        imMatches = cv2.drawMatches(ref_img, kp_a, img, kp_b, matches, None)
-        cv2.imwrite("matches.jpg", imMatches)
-
-        # extract location of good matches
-        pts_a = np.zeros((numMatches, 2), dtype=np.float32)
-        pts_b = np.zeros((numMatches, 2), dtype=np.float32)
-
-        for idx, match in enumerate(matches):
-            pts_a[idx, :] = kp_a[match.queryIdx].pt 
-            pts_b[idx, :] = kp_b[match.trainIdx].pt
-
-        H, mask = cv2.findHomography(pts_a, pts_b, cv2.RANSAC)
-
-        # transform img
-        height, width, channels = img.shape
-        img_warped = cv2.warpPerspective(img, H, (width, height))
-        aligned_images.append(img_warped)
-
-    return aligned_images
-
-
-# find the largest rectanlge in an 2d-matrix
-# source: https://stackoverflow.com/questions/38277859/obtain-location-of-largest-rectangle
-from collections import namedtuple
-
-Info = namedtuple('Info', 'start height')
-
-# returns height, width, and position of the top left corner of the largest
-#  rectangle with the given value in mat
-def max_size(mat, value=0):
-    it = iter(mat)
-    hist = [(el==value) for el in next(it, [])]
-    max_size_start, start_row = max_rectangle_size(hist), 0
-    for i, row in enumerate(it):
-        hist = [(1+h) if el == value else 0 for h, el in zip(hist, row)]
-        mss = max_rectangle_size(hist)
-        if area(mss) > area(max_size_start):
-            max_size_start, start_row = mss, i+2-mss[0]
-    return max_size_start[:2], (start_row, max_size_start[2])
-
-# returns height, width, and start column of the largest rectangle that
-#  fits entirely under the histogram
-def max_rectangle_size(histogram):
-    stack = []
-    top = lambda: stack[-1]
-    max_size_start = (0, 0, 0) # height, width, start of the largest rectangle
-    pos = 0 # current position in the histogram
-    for pos, height in enumerate(histogram):
-        start = pos # position where rectangle starts
-        while True:
-            if not stack or height > top().height:
-                stack.append(Info(start, height)) # push
-            elif stack and height < top().height:
-                max_size_start = max(
-                    max_size_start,
-                    (top().height, pos - top().start, top().start),
-                    key=area)
-                start, _ = stack.pop()
-                continue
-            break # height == top().height goes here
-
-    pos += 1
-    for start, height in stack:
-        max_size_start = max(max_size_start, (height, pos - start, start),
-            key=area)
-
-    return max_size_start
-
-def area(size): return size[0]*size[1]
 
 # focus_stacking (naive method)
 def naive_focus_stacking(images):
@@ -201,46 +92,93 @@ def naive_focus_stacking(images):
     return canvas
 
 
-# Laplacian Pyramid
-def get_laplacian_pyramid(img, N):
-    """
-    returns N-level Laplacian Pyramid of input image as a list
-    @input: image
-    @output: list of N images containing laplacian pyramids from level 0 to level N
-    """
-    # current level image
-    curr_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    lap_pyramids = []
-    gaussian_pyramids = [curr_img,]
-
-    # for N level
-    for i in range(N):
-        down = cv2.pyrDown(curr_img)
-        gaussian_pyramids.append(down)
-        up = cv2.pyrUp(down, dstsize=(curr_img.shape[1], curr_img.shape[0]))
-        lap = curr_img - up
-        lap_pyramids.append(lap)
-        curr_img = down
-
-    # display pyramids images
-    fg, axs = plt.subplots(2,len(lap_pyramids))
-    fg.suptitle('Laplacian Pyramid')
-    for i in range(len(lap_pyramids)):
-        axs[0, i].imshow(lap_pyramids[i][:,:], cmap='gray')
-        axs[1, i].imshow(gaussian_pyramids[i][:,:], cmap='gray')
-    plt.show()
-    
 
 # focus-stacking (laplacian pyramid fusion method)
-def focus_stacking_lap(images):
+def lap_focus_stacking(images, N=5, kernel_size=5):
     """
     achieves the functionality of focus stacking using Laplacian Pyramid Fusion described 
         in Wang and Chang's 2011 paper (regional fusion)
-    @input: array of images
+    @input: images - array of images
+            N      - Depth of Laplacian Pyramid
+            kernel_size - integer represents the side of Gaussian kernel
     @output: single image that stacked the depth of fields of all images
     """
-    pass
+    # # 1 - align images
+    # images = align_images(images)
+
+    # 2- generate array of laplacian pyramids
+    list_lap_pyramids = []
+    for img in images:
+        # get both laplacian and gaussian pyramid
+        lap_pyr = get_laplacian_pyramid(img, N)
+        base = lap_pyr[-1]
+        lap_pyr = lap_pyr[:-1]
+        list_lap_pyramids.append(lap_pyr)
+    list_lap_pyramids = np.array(list_lap_pyramids, dtype=object)
+
+    LP_f = []
+
+    # 3 - regional fusion using these laplacian pyramids
+    # fuse level = N laplacian pyramid
+    D_N = np.array([deviation(lap, kernel_size) for lap in list_lap_pyramids[:, -1]])
+    E_N = np.array([entropy(lap, kernel_size) for lap in list_lap_pyramids[:, -1]])
+
+    # 3.1 - init level N fusion canvas
+    LP_N = np.zeros(list_lap_pyramids[0, -1].shape)
+    for m in range(LP_N.shape[0]):
+        for n in range(LP_N.shape[1]):
+            D_max_idx = np.argmax(D_N[:, m, n])
+            E_max_idx = np.argmax(E_N[:, m, n])
+            D_min_idx = np.argmin(D_N[:, m, n])
+            E_min_idx = np.argmin(E_N[:, m, n])
+            # if the image maximizes BOTH the deviation and entropy, use the pixel from that image
+            if D_max_idx == E_max_idx:
+                LP_N[m, n] = list_lap_pyramids[D_max_idx, -1][m, n]
+            # if the image minimizes BOTH the deviation and entropy, use the pixel from that image
+            elif D_min_idx == E_min_idx: 
+                LP_N[m, n] = list_lap_pyramids[D_min_idx, -1][m, n]
+            # else average across all images
+            else:
+                for k in range(list_lap_pyramids.shape[0]):
+                    LP_N[m, n] += list_lap_pyramids[k, -1][m, n]
+                LP_N[m, n] /= list_lap_pyramids.shape[0]
+
+    LP_f.append(LP_N)
+
+    # 3.2 - fusion other levels of laplacian pyramid (N-1 to 0)
+    for l in reversed(range(0, N-1)):
+        # level l final laplacian canvas
+        LP_l = np.zeros(list_lap_pyramids[0, l].shape)
+
+        # region energey map for level l
+        RE_l = np.array([region_energy(lap) for lap in list_lap_pyramids[:, l]], dtype=object)
+
+        for m in range(LP_l.shape[0]):
+            for n in range(LP_l.shape[1]):
+                RE_max_idx = np.argmax(RE_l[:, m, n])
+                LP_l[m, n] = list_lap_pyramids[RE_max_idx, l][m, n]
+
+        LP_f.append(LP_l)
+
+    LP_f = np.array(LP_f, dtype=object)
+    LP_f = np.flip(LP_f)
+
+    # display fused pyramids images
+    if isPlot: 
+        pyplot_display(LP_f, title='Fused Laplacian Pyramid Map', gray=True)
+
+    # 4 - time to reconstruct final laplacian pyramid(LP_f) back to original image!
+    # get the top-level of the gaussian pyramid
+    fused_img = cv2.pyrUp(base, dstsize=(LP_f[-1].shape[1], LP_f[-1].shape[0])).astype(np.float64)
+
+    for i in reversed(range(N)):
+        # combine with laplacian pyramid at the level
+        fused_img += LP_f[i]
+        if i != 0:
+            fused_img = cv2.pyrUp(fused_img, dstsize=(LP_f[i-1].shape[1], LP_f[i-1].shape[0]))
+    
+    return fused_img
+
 
 
 if __name__ == "__main__":
@@ -250,11 +188,19 @@ if __name__ == "__main__":
     # parse path to input folder
     parser.add_argument('input_path', type=str, help='path to the directory containing input images')
     parser.add_argument('--output_name', type=str, default='output.jpg',help='the output file name, default will be \'output.jpg\'')
+    parser.add_argument('--plot', action='store_true', help='run with this flag to show all process using matplotlib.')
+    parser.add_argument('--depth', type=int, default=5, help='depth(level) of Laplacian Pyramid, default to 5')
+    parser.add_argument('--k_size', type=int, default=5, help='kernel size of Gaussian Blurring used in pyramid')
 
     args = parser.parse_args()
 
+    # extract args
     dir_path = args.input_path
     output_name = args.output_name
+    global isPlot
+    isPlot = args.plot
+    pyramid_depth = args.depth
+    kernel_size = args.k_size
     
     # load images
     file_names = [img for img in glob.glob(os.path.join(dir_path, '*.jpg'))]
@@ -264,27 +210,26 @@ if __name__ == "__main__":
     # input sanity checks
     assert num_files > 1, "Provide at least 2 images."
 
-    # load images
-    images = np.array([cv2.imread(f_name) for f_name in file_names])
+    # load images (in HSV)
+    images = np.array([cv2.cvtColor(cv2.imread(f_name), cv2.COLOR_BGR2HSV) for f_name in file_names])
+    V_channel = 2
     
     # check the filenames are valid
     if any([image is None for image in images]):
         raise RuntimeError("Cannot load one or more input files.")
 
     # display original images
-    fg, axs = plt.subplots(1,2)
-    fg.suptitle('Unprocessed Images')
-    axs[0].imshow(images[0][:,:,[2,1,0]])
-    axs[1].imshow(images[1][:,:,[2,1,0]])
-    plt.show()
-
-    # laplacian pyramid test
-    get_laplacian_pyramid(images[0], 5)
+    if isPlot:
+        pyplot_display(images[:, :, :, V_channel], title='Unprocessed Images (grayscale)', gray=True)
 
     # focus stacking
-    canvas = naive_focus_stacking(images)
-    plt.imshow(canvas[:,:,[2,1,0]])
-    plt.show()
+    canvas = lap_focus_stacking(images[:, :, :, V_channel], N=pyramid_depth, kernel_size=kernel_size)
+    images[0][:,:,V_channel] = canvas
 
-    # write to file
+    # show gray result
+    if isPlot:
+        pyplot_display(canvas, title='Final Result (grayscale)', gray=True)
+        pyplot_display(images[0], title='Colored Final Result (work in progress...)', gray=False)
+
+    # write to file (grayscale)
     cv2.imwrite(output_name, canvas)
