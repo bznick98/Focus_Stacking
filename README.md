@@ -38,3 +38,7 @@ The final result will be stored in `output.jpg` or the name you specified.
 * Wang & Chang 2011, ***[A Multi-focus Image Fusion Method Based on Laplacian Pyramid](https://pdfs.semanticscholar.org/9079/27b96fa87283efbc5f9a9a4202a7f8e879ff.pdf?_ga=2.245832256.531696024.1607257913-188213619.1607257913)***
 * [Test6 folder images source](https://www.cambridgeincolour.com/tutorials/focus-stacking.htm)
 * Some code snippets cited inside helper.py
+
+## TODO:
+* Support colored image for laplacian method.
+* Fix align image error for laplacian method, there is no align step right now. 
