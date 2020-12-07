@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-import sys
+import os, sys, glob, argparse
 
 intro = \
 """
@@ -10,6 +10,11 @@ Focus Stacking
 
 This project is the final project of CS445 Fall2020,
 Team: Zongnan Bao(zb3) and Han Chen(hanc3)\n\n
+"""
+
+simple = \
+"""
+stack photos with different depth of fields
 """
 
 
@@ -123,10 +128,10 @@ def max_rectangle_size(histogram):
 
 def area(size): return size[0]*size[1]
 
-# focus_stacking
-def focus_stacking(images):
+# focus_stacking (naive method)
+def naive_focus_stacking(images):
     """
-    achieves the functionality of focus stacking
+    achieves the functionality of focus stacking using max of LoG masking (pixel-wise)
     @input: array of images
     @output: single image that stacked the depth of fields of all images
     """
@@ -150,7 +155,7 @@ def focus_stacking(images):
     plt.imshow(thre)
     plt.show()
 
-    # # crop image so that it fits in the largest rectangle in warped image
+    # # TODO: crop image so that it fits in the largest rectangle in warped image
     # for i in range(len(aligned_gray)):
 
 
@@ -163,10 +168,11 @@ def focus_stacking(images):
         aligned_gray[i] = cv2.Laplacian(aligned_gray[i], cv2.CV_64F, ksize=3)
 
     # display LoG
-    fg, axs = plt.subplots(1,2)
+    fg, axs = plt.subplots(1,3)
     fg.suptitle('Laplacian of Gaussian(edge detect) for all images')
-    axs[0].imshow(aligned_gray[0][:,:])
-    axs[1].imshow(aligned_gray[1][:,:])
+    axs[0].imshow(np.absolute(aligned_gray[0][:,:]))
+    axs[1].imshow(np.absolute(aligned_gray[1][:,:]))
+    axs[2].imshow(np.absolute(aligned_gray[2][:,:]))
     plt.show()
 
     # prepare output image
@@ -177,6 +183,14 @@ def focus_stacking(images):
 
     # find mask corresponding to maximum (which LoG ahiceves the maximum)
     masks = (np.absolute(aligned_gray) == max_LoG).astype('uint8')
+
+    # display masks
+    fg, axs = plt.subplots(1,3)
+    fg.suptitle('MASKs for all images')
+    axs[0].imshow(masks[0])
+    axs[1].imshow(masks[1])
+    axs[2].imshow(masks[2])
+    plt.show()
     
     # apply masks
     for i in range(len(aligned_images)):
@@ -187,20 +201,76 @@ def focus_stacking(images):
     return canvas
 
 
-if __name__ == "__main__":
-    # print introdutory text
-    print(intro)
+# Laplacian Pyramid
+def get_laplacian_pyramid(img, N):
+    """
+    returns N-level Laplacian Pyramid of input image as a list
+    @input: image
+    @output: list of N images containing laplacian pyramids from level 0 to level N
+    """
+    # current level image
+    curr_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
+    lap_pyramids = []
+    gaussian_pyramids = [curr_img,]
+
+    # for N level
+    for i in range(N):
+        down = cv2.pyrDown(curr_img)
+        gaussian_pyramids.append(down)
+        up = cv2.pyrUp(down, dstsize=(curr_img.shape[1], curr_img.shape[0]))
+        lap = curr_img - up
+        lap_pyramids.append(lap)
+        curr_img = down
+
+    # display pyramids images
+    fg, axs = plt.subplots(2,len(lap_pyramids))
+    fg.suptitle('Laplacian Pyramid')
+    for i in range(len(lap_pyramids)):
+        axs[0, i].imshow(lap_pyramids[i][:,:], cmap='gray')
+        axs[1, i].imshow(gaussian_pyramids[i][:,:], cmap='gray')
+    plt.show()
+    
+
+# focus-stacking (laplacian pyramid fusion method)
+def focus_stacking_lap(images):
+    """
+    achieves the functionality of focus stacking using Laplacian Pyramid Fusion described 
+        in Wang and Chang's 2011 paper (regional fusion)
+    @input: array of images
+    @output: single image that stacked the depth of fields of all images
+    """
+    pass
+
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description=simple)
+
+    # parse path to input folder
+    parser.add_argument('input_path', type=str, help='path to the directory containing input images')
+    parser.add_argument('--output_name', type=str, default='output.jpg',help='the output file name, default will be \'output.jpg\'')
+
+    args = parser.parse_args()
+
+    dir_path = args.input_path
+    output_name = args.output_name
+    
     # load images
-    file_names = sys.argv[1:]
+    file_names = [img for img in glob.glob(os.path.join(dir_path, '*.jpg'))]
+    
     num_files = len(file_names)
     
-    # check number of files
+    # input sanity checks
     assert num_files > 1, "Provide at least 2 images."
 
     # load images
     images = np.array([cv2.imread(f_name) for f_name in file_names])
     
+    # check the filenames are valid
+    if any([image is None for image in images]):
+        raise RuntimeError("Cannot load one or more input files.")
+
     # display original images
     fg, axs = plt.subplots(1,2)
     fg.suptitle('Unprocessed Images')
@@ -208,12 +278,13 @@ if __name__ == "__main__":
     axs[1].imshow(images[1][:,:,[2,1,0]])
     plt.show()
 
-    # TODO: check the filenames are valid
+    # laplacian pyramid test
+    get_laplacian_pyramid(images[0], 5)
 
     # focus stacking
-    canvas = focus_stacking(images)
+    canvas = naive_focus_stacking(images)
     plt.imshow(canvas[:,:,[2,1,0]])
     plt.show()
 
     # write to file
-    cv2.imwrite('output.jpg', canvas)
+    cv2.imwrite(output_name, canvas)
