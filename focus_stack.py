@@ -19,7 +19,7 @@ simple = \
 stack photos with different depth of fields
 """
 
-# focus_stacking (naive method)
+# focus_stacking (naive method, depricated)
 def naive_focus_stacking(images):
     """
     achieves the functionality of focus stacking using max of LoG masking (pixel-wise)
