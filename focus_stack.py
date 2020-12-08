@@ -127,7 +127,7 @@ def lap_focus_stacking(images, N=5, kernel_size=5):
     LP_f = []
 
     # 3 - regional fusion using these laplacian pyramids
-    # fuse level = N laplacian pyramid
+    # fuse level = N laplacian pyramid, D=deviation, E=entropy
     D_N = np.array([deviation(lap, kernel_size) for lap in list_lap_pyramids[:, -1]])
     E_N = np.array([entropy(lap, kernel_size) for lap in list_lap_pyramids[:, -1]])
 
