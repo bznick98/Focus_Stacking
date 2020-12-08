@@ -31,9 +31,9 @@ The final result will be stored in `output.jpg` or the name you specified.
 
 #### Flags:
 * -h : show all args and flags.
-* --plot : to plot and show all the processes and stages of focus stacking.
-* --naive : to use naive method (max LoG) for focus stacking.
-* --eval : to evaluate the focusness(quality) before/after focus stacking using standard deviation, higher is better.
+* -plot : to plot and show all the processes and stages of focus stacking.
+* -naive : to use naive method (max LoG) for focus stacking.
+* -eval : to evaluate the focusness(quality) before/after focus stacking using standard deviation, higher is better.
 
 ## Language and Dependent Packages:
 * Python3
