@@ -10,17 +10,28 @@ def align_images(images):
     @input: array of images
     @output: array of aligned images
     """
+    # determine input image is gray or not
+    isColor = True
+    if len(images.shape) <= 3:
+         isColor = False
+
     # use the first image as the reference image
     ref_img = images[0]
-    ref_gray = cv2.cvtColor(ref_img, cv2.COLOR_BGR2GRAY)
+    if isColor:
+        ref_gray = cv2.cvtColor(ref_img, cv2.COLOR_BGR2GRAY)
+    else:
+        ref_gray = ref_img
 
     # output array
     aligned_images = [ref_img,]
 
     # find homography between other images and ref img
     for img in images[1:]:
-        # convert it to grayscale for feature extraction
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        if isColor:
+            # convert it to grayscale for feature extraction
+            img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        else:
+            img_gray = img
 
         # use SIFT or ORB feature detection, or KAZE, seems more stable than ORB
         max_features = 1000
@@ -58,7 +69,10 @@ def align_images(images):
         H, mask = cv2.findHomography(pts_a, pts_b, cv2.RANSAC)
 
         # transform img
-        height, width, channels = img.shape
+        if isColor:
+            height, width, channels = img.shape
+        else:
+            height, width = img.shape
         img_warped = cv2.warpPerspective(img, H, (width, height))
         aligned_images.append(img_warped)
 
@@ -126,7 +140,24 @@ def pyplot_display(images, title='Images Display', gray=False):
     plt.show()
 
 
+# Evaluation Metrics:
+# - Standard Deviation of Image
+def eval_std(image):
+    """
+    Evaluate image focusness (quality) based on 
+        the standard deviation of the image, 
+        higher is better.
+    @input: image - 2d image (W*H) (grayscale)
+    @output: standard deviation score
+    """
+    mu = np.mean(image)
+    sum = 0
+    M, N = image.shape
+    for m in range(M):
+        for n in range(N):
+            sum += (image[m, n] - mu)**2 / (M*N)
 
+    return np.sqrt(sum)
 
 
 # The section below are cited from sweet internet

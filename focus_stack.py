@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 import os, sys, glob, argparse
 
-from helper import align_images, get_laplacian_pyramid, entropy, deviation, region_energy, pyplot_display
+from helper import align_images, get_laplacian_pyramid, entropy, deviation, region_energy, pyplot_display, eval_std
 
 intro = \
 """
@@ -26,25 +26,31 @@ def naive_focus_stacking(images):
     @input: array of images
     @output: single image that stacked the depth of fields of all images
     """
+    # determine input image is gray or not
+    isColor = True
+    if len(images.shape) <= 3:
+         isColor = False
+
     # 1 - align images
     aligned_images = align_images(images)
 
-    # display alignment
-    fg, axs = plt.subplots(1,2)
-    fg.suptitle('Reference Image and the Second Image(Aligned)')
-    axs[0].imshow(images[0][:,:,[2,1,0]])
-    axs[1].imshow(aligned_images[1][:,:,[2,1,0]])
-    plt.show()
-
-    # convert to grayscale to get largest rectangle & Laplacian of Gaussian
-    aligned_gray = [cv2.cvtColor(aligned_img, cv2.COLOR_BGR2GRAY) for aligned_img in aligned_images]
+    if isPlot:
+        # display alignment
+        pyplot_display([images[0], aligned_images[1]], title='Reference Image and the Second Image(Aligned)', gray=(not isColor))
+    
+    if isColor:
+        # convert to grayscale to get largest rectangle & Laplacian of Gaussian
+        aligned_gray = [cv2.cvtColor(aligned_img, cv2.COLOR_BGR2GRAY) for aligned_img in aligned_images]
+    else:
+        aligned_gray = aligned_images
 
     # convert to binary map to perform max-size rectangle
     aligned_bin, thre = cv2.threshold(aligned_gray[1], 0, 1, cv2.THRESH_BINARY)
-    plt.imshow(aligned_gray[1])
-    plt.show()
-    plt.imshow(thre)
-    plt.show()
+    if isPlot:
+        plt.imshow(aligned_gray[1])
+        plt.show()
+        plt.imshow(thre)
+        plt.show()
 
     # # TODO: crop image so that it fits in the largest rectangle in warped image
     # for i in range(len(aligned_gray)):
@@ -58,13 +64,14 @@ def naive_focus_stacking(images):
     for i in range(len(aligned_gray)):
         aligned_gray[i] = cv2.Laplacian(aligned_gray[i], cv2.CV_64F, ksize=3)
 
-    # display LoG
-    fg, axs = plt.subplots(1,3)
-    fg.suptitle('Laplacian of Gaussian(edge detect) for all images')
-    axs[0].imshow(np.absolute(aligned_gray[0][:,:]))
-    axs[1].imshow(np.absolute(aligned_gray[1][:,:]))
-    axs[2].imshow(np.absolute(aligned_gray[2][:,:]))
-    plt.show()
+    if isPlot:
+        # display LoG
+        fg, axs = plt.subplots(1,3)
+        fg.suptitle('Laplacian of Gaussian(edge detect) for all images')
+        axs[0].imshow(np.absolute(aligned_gray[0][:,:]))
+        axs[1].imshow(np.absolute(aligned_gray[1][:,:]))
+        axs[2].imshow(np.absolute(aligned_gray[2][:,:]))
+        plt.show()
 
     # prepare output image
     canvas = np.zeros(images[0].shape)
@@ -75,13 +82,14 @@ def naive_focus_stacking(images):
     # find mask corresponding to maximum (which LoG ahiceves the maximum)
     masks = (np.absolute(aligned_gray) == max_LoG).astype('uint8')
 
-    # display masks
-    fg, axs = plt.subplots(1,3)
-    fg.suptitle('MASKs for all images')
-    axs[0].imshow(masks[0])
-    axs[1].imshow(masks[1])
-    axs[2].imshow(masks[2])
-    plt.show()
+    if isPlot:
+        # display masks
+        fg, axs = plt.subplots(1,3)
+        fg.suptitle('MASKs for all images')
+        axs[0].imshow(masks[0])
+        axs[1].imshow(masks[1])
+        axs[2].imshow(masks[2])
+        plt.show()
     
     # apply masks
     for i in range(len(aligned_images)):
@@ -188,9 +196,11 @@ if __name__ == "__main__":
     # parse path to input folder
     parser.add_argument('input_path', type=str, help='path to the directory containing input images')
     parser.add_argument('--output_name', type=str, default='output.jpg',help='the output file name, default will be \'output.jpg\'')
-    parser.add_argument('--plot', action='store_true', help='run with this flag to show all process using matplotlib.')
     parser.add_argument('--depth', type=int, default=5, help='depth(level) of Laplacian Pyramid, default to 5')
     parser.add_argument('--k_size', type=int, default=5, help='kernel size of Gaussian Blurring used in pyramid')
+    parser.add_argument('--plot', action='store_true', help='run with this flag to show all process using matplotlib.')
+    parser.add_argument('--naive', action='store_true', help='run with this flag to use naive method (max LoG)')
+    parser.add_argument('--eval', action='store_true', help='run with this flag to evaluate the focusness before/after focus stacking using standard deviation')
 
     args = parser.parse_args()
 
@@ -201,8 +211,10 @@ if __name__ == "__main__":
     isPlot = args.plot
     pyramid_depth = args.depth
     kernel_size = args.k_size
+    naive = args.naive
+    eval = args.eval
     
-    # load images
+    # 1 - read files
     file_names = [img for img in glob.glob(os.path.join(dir_path, '*.jpg'))]
     
     num_files = len(file_names)
@@ -210,7 +222,7 @@ if __name__ == "__main__":
     # input sanity checks
     assert num_files > 1, "Provide at least 2 images."
 
-    # load images (in HSV)
+    # 2 - load images (in HSV)
     images = np.array([cv2.cvtColor(cv2.imread(f_name), cv2.COLOR_BGR2HSV) for f_name in file_names])
     V_channel = 2
     
@@ -222,14 +234,30 @@ if __name__ == "__main__":
     if isPlot:
         pyplot_display(images[:, :, :, V_channel], title='Unprocessed Images (grayscale)', gray=True)
 
-    # focus stacking
-    canvas = lap_focus_stacking(images[:, :, :, V_channel], N=pyramid_depth, kernel_size=kernel_size)
-    images[0][:,:,V_channel] = canvas
+    # 3 - focus stacking
+    if naive:
+        # naive way (used for comparison)
+        canvas = naive_focus_stacking(np.array([cv2.cvtColor(img, cv2.COLOR_HSV2BGR) for img in images]))
+        # to gray scale
+        canvas = cv2.cvtColor(canvas, cv2.COLOR_BGR2GRAY)
+    else:
+        # laplacian pyramid method
+        canvas = lap_focus_stacking(images[:, :, :, V_channel], N=pyramid_depth, kernel_size=kernel_size)
+        # images[0][:,:,V_channel] = canvas
 
     # show gray result
     if isPlot:
         pyplot_display(canvas, title='Final Result (grayscale)', gray=True)
-        pyplot_display(images[0], title='Colored Final Result (work in progress...)', gray=False)
+        # pyplot_display(images[0], title='Colored Final Result (work in progress...)', gray=False)
 
-    # write to file (grayscale)
+    # 4 - write to file (grayscale)
     cv2.imwrite(output_name, canvas)
+
+    # 5 - Evaluation focusness quality
+    if eval:
+        print("Evaluate focusness using std dev, higher is better:")
+        src_std= eval_std(images[0][:, :, V_channel])
+        print("- Std dev before focus stacking: {}".format(src_std))
+
+        final_std = eval_std(canvas)
+        print("- Std dev after focus stacking: {}".format(final_std))
