@@ -31,8 +31,8 @@ The final result will be stored in `output.jpg` or the name you specified.
 * --naive : to use naive method (max LoG) for focus stacking.
 * --eval : to evaluate the focusness(quality) before/after focus stacking using standard deviation, higher is better.
 
-## Dependent Packages:
-* (Use Python3)
+## Language and Dependent Packages:
+* Python3
 * OpenCV
 * Matplotlib
 
