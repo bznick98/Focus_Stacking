@@ -5,6 +5,7 @@ Team: Zongnan Bao(zb3) and Han Chen(hanc3). It's guided by Wang and Chang's 2011
 
 ## Workflow:
 ![Image of project workflow](./workflow.png)
+[> Detailed Report](Final%20Project%20Docs/CS445%20Final%20Project%20Report.pdf)
 
 ## How To Use:
 Run ***focus_stack.py*** with path to a DIRECTORY that contains input image files.
