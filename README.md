@@ -3,6 +3,9 @@
 This project is the final project of CS445 Fall2020,
 Team: Zongnan Bao(zb3) and Han Chen(hanc3). It's guided by Wang and Chang's 2011 paper: ***[A Multi-focus Image Fusion Method Based on Laplacian Pyramid](https://pdfs.semanticscholar.org/9079/27b96fa87283efbc5f9a9a4202a7f8e879ff.pdf?_ga=2.245832256.531696024.1607257913-188213619.1607257913)***, and some other internet resources.
 
+## Workflow
+![Image of project workflow](./workflow.png)
+
 ## How To Use:
 Run ***focus_stack.py*** with path to a DIRECTORY that contains input image files.
 ```bash
