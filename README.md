@@ -3,23 +3,26 @@
 This project is the final project of CS445 Fall2020,
 Team: Zongnan Bao(zb3) and Han Chen(hanc3). It's guided by Wang and Chang's 2011 paper: ***[A Multi-focus Image Fusion Method Based on Laplacian Pyramid](https://pdfs.semanticscholar.org/9079/27b96fa87283efbc5f9a9a4202a7f8e879ff.pdf?_ga=2.245832256.531696024.1607257913-188213619.1607257913)***, and some other internet resources.
 
+## Demo:
+![Demo Tie](./demo.png)
+
 ## Workflow:
 ![Image of project workflow](./workflow.png)
 [> Detailed Report](Final%20Project%20Docs/CS445%20Final%20Project%20Report.pdf)
 
 ## How To Use:
 Run ***focus_stack.py*** with path to a DIRECTORY that contains input image files.
-```bash
+```console
 python3 focus_stack.py path_to_directory [optional: arguments and flags]
 ```
-e.g.
-```bash
+**like this**, 
+```console
 python3 focus_stack.py test_img/test6
 ```
 or with arguments,
-```bash
 
-python3 focus_stack.py --depth 10
+```console 
+python3 focus_stack.py test_img/test6 --depth 10
 ```
 The final result will be stored in `output.jpg` or the name you specified.
 
