@@ -2,3 +2,4 @@
 **/.DS_Store
 matches.jpg
 __pycache__/
+**.pyc
