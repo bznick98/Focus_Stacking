@@ -136,7 +136,10 @@ def pyplot_display(images, title='Images Display', gray=False):
         if gray:
             axs[i].imshow(image, cmap='gray')
         else:
-            axs[i].imshow(image[:, :, [2,1,0]])
+            if num_img == 1:
+                axs.imshow(image[:, :, [2,1,0]])
+            else:
+                axs[i].imshow(image[:, :, [2,1,0]])
     plt.show()
 
 

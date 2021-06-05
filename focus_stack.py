@@ -108,7 +108,7 @@ def lap_focus_stacking(images, N=5, kernel_size=5):
         in Wang and Chang's 2011 paper (regional fusion)
     @input: images - array of images
             N      - Depth of Laplacian Pyramid
-            kernel_size - integer represents the side of Gaussian kernel
+            kernel_size - integer represents the side length of Gaussian kernel
     @output: single image that stacked the depth of fields of all images
     """
     # # 1 - align images
@@ -230,10 +230,6 @@ if __name__ == "__main__":
     if any([image is None for image in images]):
         raise RuntimeError("Cannot load one or more input files.")
 
-    # display original images
-    if isPlot:
-        pyplot_display(images[:, :, :, V_channel], title='Unprocessed Images (grayscale)', gray=True)
-
     # 3 - focus stacking
     if naive:
         # naive way (used for comparison)
@@ -242,13 +238,17 @@ if __name__ == "__main__":
         canvas = cv2.cvtColor(canvas, cv2.COLOR_BGR2GRAY)
     else:
         # laplacian pyramid method
-        canvas = lap_focus_stacking(images[:, :, :, V_channel], N=pyramid_depth, kernel_size=kernel_size)
+        RGB_images = np.array([cv2.cvtColor(img, cv2.COLOR_HSV2BGR) for img in images])
+        canvas = np.array([lap_focus_stacking(RGB_images[:, :, :, CHANNEL], N=pyramid_depth, kernel_size=kernel_size) for CHANNEL in range(3)])
+        canvas = np.moveaxis(canvas, 0, -1)
         # images[0][:,:,V_channel] = canvas
 
-    # show gray result
+    # show result
     if isPlot:
-        pyplot_display(canvas, title='Final Result (grayscale)', gray=True)
-        # pyplot_display(images[0], title='Colored Final Result (work in progress...)', gray=False)
+        # DISPLAY ORIGINAL IMAGES 
+        pyplot_display(RGB_images, title='Original Images (colored)', gray=False)
+        # DISPLAY RESULT
+        pyplot_display([canvas/255,], title='Final Result (Colored)', gray=False)
 
     # 4 - write to file (grayscale)
     cv2.imwrite(output_name, canvas)
