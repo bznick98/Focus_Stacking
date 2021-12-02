@@ -1,3 +1,4 @@
+![](https://visitor-badge.glitch.me/badge?page_id=bznick98.Focus_Stacking)
 # Focus Stacking
 
 This project is the final project of CS445 Fall2020,
