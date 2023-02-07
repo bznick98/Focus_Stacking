@@ -6,25 +6,25 @@ Team: Zongnan Bao(zb3) and Han Chen(hanc3). It's guided by Wang and Chang's 2011
 This tool has two method implemented for blending images with different depth of field, we recommend using the default one (Laplacian Pyramid Method) since it produces better results.
 
 ## Demo:
-![Demo Tie](./demo.png)
+![Demo Tie](./assets/demo.png)
 
 ## Workflow:
-![Image of project workflow](./workflow.png)
+![Image of project workflow](./assets/workflow.png)
 [> Detailed Report](Final%20Project%20Docs/CS445%20Final%20Project%20Report.pdf)
 
 ## How To Use:
 Clone this repo and run ***focus_stack.py*** with path to a DIRECTORY that contains input image files.
 ```console
-python3 focus_stack.py path_to_directory [optional: arguments and flags]
+python3 focus_stack.py PATH/TO/IMAGE/DIR/
 ```
 **like this**, 
 ```console
-python3 focus_stack.py test_img/test6
+python3 focus_stack.py assets/test_images/test6/
 ```
 or with arguments,
 
 ```console 
-python3 focus_stack.py test_img/test6 --depth 10
+python3 focus_stack.py assets/test_images/test6/ --depth 10
 ```
 The final result will be stored in `output.jpg` or the name you specified.
 
