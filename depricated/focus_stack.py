@@ -256,7 +256,7 @@ if __name__ == "__main__":
     # 5 - Evaluation focusness quality
     if eval:
         print("Evaluate focusness using std dev, higher is better:")
-        src_std= np.max([eval_std(image[:, :, V_channel]) for image in images])
+        src_std= np.max([eval_std(image) for image in images])
         print("- MAX Std dev before focus stacking: {}".format(src_std))
 
         final_std = eval_std(canvas)
