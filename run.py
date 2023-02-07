@@ -1,6 +1,6 @@
 import argparse
 
-from src.utils import load_images, save_image, parse_input, eval_std
+from src.utils import load_images, save_image, parse_input, eval
 from src.stack import naive_focus_stacking, lap_focus_stacking_3d
 
 simple = \
@@ -42,9 +42,4 @@ if __name__ == "__main__":
 
     # evaluation
     if args.eval:
-        print("Evaluate focusness using std dev, higher is better:")
-        src_std= max([eval_std(image) for image in images])
-        print("- MAX Std dev before focus stacking: {}".format(src_std))
-
-        final_std = eval_std(canvas)
-        print("- Std dev after focus stacking: {}".format(final_std))
+        eval(images, canvas)

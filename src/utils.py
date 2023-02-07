@@ -1,3 +1,4 @@
+from audioop import avg
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -146,7 +147,7 @@ def pyplot_display(images, title='Images Display', gray=False):
 
 # Evaluation Metrics:
 # - Standard Deviation of Image
-def eval_std(image):
+def calc_std(image):
     """
     Evaluate image focusness (quality) based on 
         the standard deviation of the image, 
@@ -337,3 +338,16 @@ def parse_input(input_list):
     assert len(file_paths) > 1, "Provide at least 2 images."
 
     return file_paths
+
+def eval(src_images, out_image):
+    """
+    evaluation of before/after process
+    """
+    print("Evaluate focusness using standard deviation, higher is better:")
+    src_std= np.mean([calc_std(image) for image in src_images])
+    print(f"[Source]: focusness = {src_std:.2f}")
+
+    final_std = calc_std(out_image)
+    print(f"[Result]: focusness = {final_std:.2f}")
+
+    print(f"[Focusness improved by {final_std-src_std:.2f}]")

@@ -42,11 +42,12 @@ python run.py -h
 #### Arguments:
 * -d, --depth [INT] : the depth (level) of Laplacian Pyramid, default = 5.
 * -k, --k_size [INT] : the kernel size of Gaussian Kernel (an integer), default = 5.
-* -o, --output_name [STR] : the name of output file, default = 'output.jpg'.
+* -o, --output_path [STR] : the name of output file, default = 'output.jpg'.
 
 #### Flags:
 * -h : show help info, all descriptions of args and flags.
-* --plot : plot laplacian pyramids, original images, final result step by step.
+* --debug : for debugging, plot laplacian pyramids, original images, final result step by step.
+* --plot : **TODO**: plot final results.
 * --naive : to use naive method (max LoG) for focus stacking.
 * --eval : to evaluate the focusness(quality) before/after focus stacking using standard deviation, higher is better.
 

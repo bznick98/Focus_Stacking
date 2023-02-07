@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-from src.utils import align_images, get_laplacian_pyramid, entropy, deviation, region_energy, pyplot_display, eval_std
+from src.utils import align_images, get_laplacian_pyramid, entropy, deviation, region_energy, pyplot_display
 
 
 def naive_focus_stacking(images, debug=False):
