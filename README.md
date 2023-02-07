@@ -29,10 +29,13 @@ cd Focus_Stacking
 pip install -r requirements.txt
 
 # Run focus stacking program by:
-python focus_stack.py PATH/TO/IMAGE/DIR/
+python run.py PATH/TO/IMAGE/DIR/
+
+# or specify images separately
+python run.py PATH/TO/IMAGE1.jpg PATH/TO/IMAGE2.jpg ...
 
 # For more argument detail, see:
-python focus_stack.py -h
+python run.py -h
 ```
 
 ## Some optional arguments and flags:
