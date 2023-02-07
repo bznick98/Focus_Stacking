@@ -13,20 +13,24 @@ This tool has two method implemented for blending images with different depth of
 [> Detailed Report](Final%20Project%20Docs/CS445%20Final%20Project%20Report.pdf)
 
 ## How To Use:
-Clone this repo and run ***focus_stack.py*** with path to a DIRECTORY that contains input image files.
-```console
-python3 focus_stack.py PATH/TO/IMAGE/DIR/
-```
-**like this**, 
-```console
-python3 focus_stack.py assets/test_images/test6/
-```
-or with arguments,
+```bash
+# First clone the repo:
+git clone https://github.com/bznick98/Focus_Stacking.git
 
-```console 
-python3 focus_stack.py assets/test_images/test6/ --depth 10
+# and go into project directory
+cd Focus_Stacking
+
+# (optional) Create a Python virtual environment for better package management. You can use conda, virtualenv, etc.
+
+# Install required packages: OpenCV, Matlplotlib
+pip install -r requirements.txt
+
+# Run focus stacking program by:
+python focus_stack.py PATH/TO/IMAGE/DIR/
+
+# For more argument detail, see:
+python focus_stack.py -h
 ```
-The final result will be stored in `output.jpg` or the name you specified.
 
 ## Some optional arguments and flags:
 #### Arguments:
