@@ -195,12 +195,12 @@ if __name__ == "__main__":
 
     # parse path to input folder
     parser.add_argument('input_path', type=str, help='path to the directory containing input images')
-    parser.add_argument('--output_name', type=str, default='output.jpg',help='the output file name, default will be \'output.jpg\'')
-    parser.add_argument('--depth', type=int, default=5, help='depth(level) of Laplacian Pyramid, default to 5')
-    parser.add_argument('--k_size', type=int, default=5, help='kernel size of Gaussian Blurring used in pyramid')
-    parser.add_argument('-plot', action='store_true', help='run with this flag to show all process using matplotlib.')
-    parser.add_argument('-naive', action='store_true', help='run with this flag to use naive method (max LoG)')
-    parser.add_argument('-eval', action='store_true', help='run with this flag to evaluate the focusness before/after focus stacking using standard deviation')
+    parser.add_argument('-o', '--output_name', type=str, default='output.jpg',help='the output file name, default will be \'output.jpg\'')
+    parser.add_argument('-d', '--depth', type=int, default=5, help='depth(level) of Laplacian Pyramid, default to 5')
+    parser.add_argument('-k', '--k_size', type=int, default=5, help='kernel size of Gaussian Blurring used in pyramid')
+    parser.add_argument('--plot', action='store_true', help='run with this flag to show all process using matplotlib.')
+    parser.add_argument('--naive', action='store_true', help='run with this flag to use naive method (max LoG)')
+    parser.add_argument('--eval', action='store_true', help='run with this flag to evaluate the focusness before/after focus stacking using standard deviation')
 
     args = parser.parse_args()
 

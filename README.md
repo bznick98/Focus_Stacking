@@ -30,15 +30,15 @@ The final result will be stored in `output.jpg` or the name you specified.
 
 ## Some optional arguments and flags:
 #### Arguments:
-* --depth [INT] : the depth (level) of Laplacian Pyramid, default = 5.
-* --k_size [INT] : the kernel size of Gaussian Kernel (an integer), default = 5.
-* --output_name [STR] : the name of output file, default = 'output.jpg'.
+* -d, --depth [INT] : the depth (level) of Laplacian Pyramid, default = 5.
+* -k, --k_size [INT] : the kernel size of Gaussian Kernel (an integer), default = 5.
+* -o, --output_name [STR] : the name of output file, default = 'output.jpg'.
 
 #### Flags:
 * -h : show help info, all descriptions of args and flags.
-* -plot : plot laplacian pyramids, original images, final result step by step.
-* -naive : to use naive method (max LoG) for focus stacking.
-* -eval : to evaluate the focusness(quality) before/after focus stacking using standard deviation, higher is better.
+* --plot : plot laplacian pyramids, original images, final result step by step.
+* --naive : to use naive method (max LoG) for focus stacking.
+* --eval : to evaluate the focusness(quality) before/after focus stacking using standard deviation, higher is better.
 
 ## Language and Dependent Packages:
 * Python3
