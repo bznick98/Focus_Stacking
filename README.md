@@ -1,4 +1,7 @@
 ![](https://visitor-badge.glitch.me/badge?page_id=bznick98.Focus_Stacking)
+
+### Check out the homepage of [Focus Stacking](https://bznick98.github.io/project/focus-stacking)
+
 # Focus Stacking
 
 This project is the final project of CS445 Fall2020,
