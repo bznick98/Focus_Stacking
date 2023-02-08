@@ -10,6 +10,7 @@ This tool has two method implemented for blending images with different depth of
 
 ## Demo:
 ![Demo Tie](./assets/demo.png)
+![Demo 2](./assets/demo2.png)
 
 ## Workflow:
 ![Image of project workflow](./assets/workflow.png)
