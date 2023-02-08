@@ -149,32 +149,45 @@ def pyplot_display(images, title='Images Display', gray=False):
 # - Standard Deviation of Image
 def calc_std(image):
     """
-    Evaluate image focusness (quality) based on 
+    Evaluate image constrast (quality) based on 
         the standard deviation of the image, 
         higher is better.
     @input: image - 3d image (W*H*C) or 2d
     @output: standard deviation score
     """    
-    if len(image.shape) == 1:
+    try:
+        sums = []
+        M, N, C = image.shape
+        for c in range(C):
+            mu_c = np.mean(image[:,:,c])
+            sum_c = 0
+            for m in range(M):
+                for n in range(N):
+                    sum_c += (image[m, n, c] - mu_c)**2 / (M*N)
+            sums.append(sum_c)
+        sum = np.mean(sums)
+
+    except:
         mu = np.mean(image)
         sum = 0
         M, N = image.shape
         for m in range(M):
             for n in range(N):
                 sum += (image[m, n] - mu)**2 / (M*N)
-    else:
-        sum = -1
-        M, N, C = image.shape
-        for c in range(C):
-            mu = np.mean(image[:,:,c])
-            sum_c = 0
-            for m in range(M):
-                for n in range(N):
-                    sum_c += (image[m, n, c] - mu)**2 / (M*N)
-            sum = max(sum, sum_c)
 
     return np.sqrt(sum)
 
+def sharpness3d(image):
+    """
+    calculates sharpness of a 3d image, higher is better
+    """
+    s = []
+    for c in range(image.shape[-1]):
+        gy, gx = np.gradient(image[:,:,c])
+        gnorm = np.sqrt(gx**2 + gy**2)
+        sharpness = np.average(gnorm)
+        s.append(sharpness)
+    return np.mean(s)
 
 # The section below are cited from sweet internet
 
@@ -291,7 +304,7 @@ def convolve(image, kernel=generating_kernel(0.4)):
 
 def load_images(file_paths):
     """
-    Load images in HSV
+    Load images in uint8
     """
     images = np.array([cv2.imread(f_name) for f_name in file_paths])
 
@@ -339,15 +352,64 @@ def parse_input(input_list):
 
     return file_paths
 
-def eval(src_images, out_image):
+def eval(src_images, out_image, verbose=True):
     """
     evaluation of before/after process
     """
-    print("Evaluate focusness using standard deviation, higher is better:")
     src_std= np.mean([calc_std(image) for image in src_images])
-    print(f"[Source]: focusness = {src_std:.2f}")
-
     final_std = calc_std(out_image)
-    print(f"[Result]: focusness = {final_std:.2f}")
 
-    print(f"[Focusness improved by {final_std-src_std:.2f}]")
+    src_sharp = np.mean([sharpness3d(image) for image in src_images])
+    final_sharp = sharpness3d(out_image)
+
+    if verbose:
+        print("Evaluate focusness, higher is better:")
+        print(f"[Source]: STD DEV = {src_std:.2f}, Sharpness = {src_sharp:.2f}")
+        print(f"[Result]: STD DEV = {final_std:.2f}, Sharpness = {final_sharp:.2f}")
+        print("NOTE: STDDEV represents constrast and might be depricated.")
+
+    return src_std, final_std, src_sharp, final_sharp
+
+def plot(src_images, out_image):
+    """
+    plot final results side by side comparing with source images (BGR image)
+    """
+    # convert to uint8
+    out_image = cv2.normalize(out_image, None, 255, 0, cv2.NORM_MINMAX, cv2.CV_8U)
+    # convert to RGB just for plotting
+    src_images = BGR2RGBs(src_images)
+    out_image = BGR2RGB(out_image)
+    
+    #subplot(r,c) provide the no. of rows and columns
+    fig, ax = plt.subplots(1, len(src_images)+1, figsize=(10, 7)) 
+    fig.tight_layout(pad=1.0)
+
+    for i, src_img in enumerate(src_images):
+        ax[i].imshow(src_img)
+        ax[i].set_title(f"Source Image {i+1}")
+        ax[i].set_xticks([])
+        ax[i].set_yticks([])
+
+    ax[-1].imshow(out_image)
+    ax[-1].set_title("Final Result")
+    ax[-1].set_xticks([])
+    ax[-1].set_yticks([])
+
+    src_std, final_std, src_sharp, final_sharp = eval(src_images, out_image)
+
+    plt.figtext(0.99, 0.01, f"Source Sharpness= {src_sharp:.2f} | Result Sharpness = {final_sharp:.2f}", horizontalalignment='right')
+    plt.show()
+
+
+# color conversions
+def BGR2RGBs(images):
+    return np.array([BGR2RGB(img) for img in images])
+
+def BGR2RGB(image):
+    return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+def RGB2BGRs(images):
+    return np.array([RGB2BGR(img) for img in images])
+
+def RGB2BGR(image):
+    return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)

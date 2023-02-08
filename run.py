@@ -1,6 +1,6 @@
 import argparse
 
-from src.utils import load_images, save_image, parse_input, eval
+from src.utils import load_images, save_image, parse_input, eval, plot, BGR2RGB, BGR2RGBs
 from src.stack import naive_focus_stacking, lap_focus_stacking_3d
 
 simple = \
@@ -43,3 +43,7 @@ if __name__ == "__main__":
     # evaluation
     if args.eval:
         eval(images, canvas)
+    
+    # plot
+    if args.plot:
+        plot(images, canvas)

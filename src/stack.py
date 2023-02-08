@@ -180,4 +180,5 @@ def lap_focus_stacking(images, N=5, kernel_size=5, debug=False):
         if i != 0:
             fused_img = cv2.pyrUp(fused_img, dstsize=(LP_f[i-1].shape[1], LP_f[i-1].shape[0]))
     
+    # in float64
     return fused_img

@@ -51,11 +51,6 @@ python run.py -h
 * --naive : to use naive method (max LoG) for focus stacking.
 * --eval : to evaluate the focusness(quality) before/after focus stacking using standard deviation, higher is better.
 
-## Language and Dependent Packages:
-* Python3
-* OpenCV
-* Matplotlib
-
 ## Source:
 * Wang & Chang 2011, ***[A Multi-focus Image Fusion Method Based on Laplacian Pyramid](https://pdfs.semanticscholar.org/9079/27b96fa87283efbc5f9a9a4202a7f8e879ff.pdf?_ga=2.245832256.531696024.1607257913-188213619.1607257913)***
 * [Test6 folder images source](https://www.cambridgeincolour.com/tutorials/focus-stacking.htm)
