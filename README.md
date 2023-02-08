@@ -11,7 +11,7 @@ Input Image Sequences      |  Result
 ![](/assets/fly.gif)   |  ![](/assets/fly-result.jpg)
 
 ## Result Demo:
-![Demo Tie](./assets/demo.png)
+![Demo 1](./assets/demo1.png)
 ![Demo 2](./assets/demo2.png)
 
 ## Workflow:
