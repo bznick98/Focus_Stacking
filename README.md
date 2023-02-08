@@ -2,13 +2,15 @@
 
 ### Check out the latest homepage of [Focus Stacking](https://bznick98.github.io/project/focus-stacking)
 
+
 # Focus Stacking
+Focus stacking is a technique used in photography to increase the depth of field in an image by combining multiple images taken at different focus distances into a single image with greater sharpness and clarity from foreground to background. The process involves taking multiple shots of the same scene, each with a different focus distance, and then combining them into one single clear image.
 
-This project is the final project of CS445 Fall2020,
-Team: Zongnan Bao(zb3) and Han Chen(hanc3). It's guided by Wang and Chang's 2011 paper: ***[A Multi-focus Image Fusion Method Based on Laplacian Pyramid](https://pdfs.semanticscholar.org/9079/27b96fa87283efbc5f9a9a4202a7f8e879ff.pdf?_ga=2.245832256.531696024.1607257913-188213619.1607257913)***, and some other internet resources.
-This tool has two method implemented for blending images with different depth of field, we recommend using the default one (Laplacian Pyramid Method) since it produces better results.
+Input Image Sequences      |  Result
+:-------------------------:|:-------------------------:
+![](/assets/fly.gif)   |  ![](/assets/fly-result.jpg)
 
-## Demo:
+## Result Demo:
 ![Demo Tie](./assets/demo.png)
 ![Demo 2](./assets/demo2.png)
 
@@ -61,3 +63,4 @@ python run.py -h
 * Support colored image for laplacian method. (Done!)
 * Fix align image error for laplacian method, there is no align step right now. 
 * Add GUI to the tool, make it easy to use for non-tech photography community.
+* A more comprehensive homepage of Focus Stacking is setup, link is given at the top of the page.
