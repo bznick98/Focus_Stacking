@@ -1,6 +1,6 @@
 ![](https://visitor-badge.glitch.me/badge?page_id=bznick98.Focus_Stacking)
 
-### Check out the homepage of [Focus Stacking](https://bznick98.github.io/project/focus-stacking)
+### Check out the latest homepage of [Focus Stacking](https://bznick98.github.io/project/focus-stacking)
 
 # Focus Stacking
 
