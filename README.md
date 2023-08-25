@@ -1,4 +1,4 @@
-### Check out the latest homepage of [Focus Stacking](https://bznick98.github.io/project/focus-stacking)
+> ### Check out the latest homepage of [Focus Stacking](https://bznick98.github.io/project/focus-stacking)
 
 # Focus Stacking
 Focus stacking is a technique used in photography to increase the depth of field in an image by combining multiple images taken at different focus distances into a single image with greater sharpness and clarity from foreground to background. The process involves taking multiple shots of the same scene, each with a different focus distance, and then combining them into one single clear image.
