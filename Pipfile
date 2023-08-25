@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+matplotlib = "3.5.2"
+numpy = "1.23.1"
+opencv-python-headless = "4.6.0.66"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
