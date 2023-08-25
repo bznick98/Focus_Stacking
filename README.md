@@ -28,7 +28,7 @@ cd Focus_Stacking
 # use pipenv for virtual environment and package management
 pipenv install .
 
-# enable a pipenv virtual env shell
+# enable a pipenv virtual env shell, or append 'pipenv run ' before every run command
 pipenv shell
 ```
 
