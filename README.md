@@ -3,6 +3,8 @@
 # Focus Stacking
 Focus stacking is a technique used in photography to increase the depth of field in an image by combining multiple images taken at different focus distances into a single image with greater sharpness and clarity from foreground to background. The process involves taking multiple shots of the same scene, each with a different focus distance, and then combining them into one single clear image.
 
+In this project, I chose a pyramid-based method for decomposition, blending and fusion to achieve better final image quality.
+
 Input Image Sequences      |  Result
 :-------------------------:|:-------------------------:
 ![](/assets/fly.gif)   |  ![](/assets/fly-result.jpg)
@@ -15,26 +17,30 @@ Input Image Sequences      |  Result
 ![Image of project workflow](./assets/workflow.png)
 [> Detailed Report](Final%20Project%20Docs/CS445%20Final%20Project%20Report.pdf)
 
-## How To Use:
+## Installation
 ```bash
-# First clone the repo:
+# get the code
 git clone https://github.com/bznick98/Focus_Stacking.git
 
 # and go into project directory
 cd Focus_Stacking
 
-# (optional) Create a Python virtual environment for better package management. You can use conda, virtualenv, etc.
+# use pipenv for virtual environment and package management
+pipenv install .
 
-# Install required packages: OpenCV, Matlplotlib
-pip install -r requirements.txt
+# enable a pipenv virtual env shell
+pipenv shell
+```
 
-# Run focus stacking program by:
-python run.py PATH/TO/IMAGE/DIR/
+## Run
+```bash
+# option 1. run focus stacking for all images under a directory
+python run.py assets/test_images/test6/
 
-# or specify images separately
-python run.py PATH/TO/IMAGE1.jpg PATH/TO/IMAGE2.jpg ...
+# option 2. or specify images separately
+python run.py img1.jpg img2.jpg ...
 
-# For more argument detail, see:
+# for more details and configs, checkout
 python run.py -h
 ```
 
