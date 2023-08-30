@@ -18,7 +18,7 @@ Input Image Sequences      |  Result
 [> Detailed Report](Final%20Project%20Docs/CS445%20Final%20Project%20Report.pdf)
 
 ## Installation
-> **Note**: this project requires python 3.10, but I believe generally python > 3.7 will work. Here I recomend to use [pyenv](https://github.com/pyenv/pyenv#installation) for install/manage python versions. Simply, to install pyenv, run `curl https://pyenv.run | bash`, and to install python 3.10, run `pyenv install 3.10.12`. A hack to avoid python version restriction from pipenv (if you can't get correct python version installed) is to delete the `[requires]...` in Pipfile, and delete entire Pipfile.lock, then run `pipenv install .`.
+> **Note**: I used Python 3.10.12, but generally this project only requires python 3. Here I recomend to use [pyenv](https://github.com/pyenv/pyenv#installation) for install/manage python versions if you don't have python installed. Simply, to install pyenv, run `curl https://pyenv.run | bash`, and to install python 3.10, run `pyenv install 3.10`. 
 
 ```bash
 # get the code
