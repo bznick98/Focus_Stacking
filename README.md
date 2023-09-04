@@ -18,7 +18,7 @@ Input Image Sequences      |  Result
 [> Detailed Report](Final%20Project%20Docs/CS445%20Final%20Project%20Report.pdf)
 
 ## Installation
-> **Note**: I used Python 3.10.12, but generally this project only requires python 3. Here I recomend to use [pyenv](https://github.com/pyenv/pyenv#installation) for install/manage python versions if you don't have python installed. Simply, to install pyenv, run `curl https://pyenv.run | bash`, and to install python 3.10, run `pyenv install 3.10`. 
+> **Note**: Generally this project requires python >= 3, but recommended using python >= 3.6. Recommend to use [pyenv](https://github.com/pyenv/pyenv#installation) for install/manage python versions if you don't have python installed. Simply, to install pyenv, run `curl https://pyenv.run | bash`, and to install python 3.10, run `pyenv install 3.10`. 
 
 ```bash
 # get the code
